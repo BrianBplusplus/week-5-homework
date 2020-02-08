@@ -20,7 +20,7 @@ router.post("/movies", (request, response, next) => {
 
 //CRUD READ
 router.get("/movies", (request, response, next) => {
-  const limit = Math.min(req.query.limit || 10, 500);
+  const limit = Math.min(request.query.limit || 10, 500);
   const offset = request.query.offset || 0;
   console.log("/movies request received => displaying all entries");
   Movie.findAndCountAll({
