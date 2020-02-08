@@ -1,27 +1,17 @@
-const Sequelize = require("sequelize");
+const express = require("express");
+const bodyParser = require("body-parser");
+const moviesRouter = require("./movies/router");
 
-const databaseUrl =
-  process.env.DATABASE_URL ||
-  "postgres://postgres:secret@localhost:5432/postgres";
-const db = new Sequelize(databaseUrl);
+const port = 3000;
+const app = express();
 
-const Movie = db.define("Movies", {
-  title: Sequelize.STRING,
-  yearOfRelease: Sequelize.INTEGER,
-  synopsis: Sequelize.STRING
+const jsonParser = bodyParser.json();
+app.use(jsonParser);
+
+app.use(moviesRouter);
+
+app.get("/test", (request, response) => {
+  console.log("Hello world");
 });
 
-db.sync()
-  .then(() =>
-    Promise.all([
-      Movie.create({ title: "Watchmen", yearOfRelease: 2009, synopsis: "---" }),
-      Movie.create({
-        title: "Starship Troopers",
-        yearOfRelease: 1998,
-        synopsis: "---"
-      }),
-      Movie.create({ title: "Alien", yearOfRelease: 1979, synopsis: "---" })
-    ])
-  )
-  .then(() => console.log("Database updated"))
-  .catch(console.error);
+app.listen(port, () => console.log(`Listening on ${port}`));
