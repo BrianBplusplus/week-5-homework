@@ -29,23 +29,46 @@ router.get("/movies", (request, response, next) => {
 router.get("/movies/:id", (request, response, next) => {
   console.log("/movies request received => displaying single entry");
   Movie.findByPk(request.params.id)
-    .then(movie => response.json(movie))
+    .then(movie => {
+      if (!movie) {
+        response.status(404).end();
+      } else {
+        response.json(movie);
+      }
+    })
     .catch(error => next(error));
 });
 
 //CRUD UPDATE
-router.put("/movies/:id", (request, response, next) =>
+router.put("/movies/:id", (request, response, next) => {
   Movie.findByPk(request.params.id)
-    .then(movie => movie.update(request.body))
-    .then(movie => response.send(movie))
-    .catch(error => next(error))
-);
+    .then(movie => {
+      if (movie) {
+        movie.update(request.body).then(movie => response.json(movie));
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch(error => next(error));
+});
 
 //CRUD DELETE
-router.delete("/movies/:id", (request, response, next) =>
-  Movie.destroy({ where: { id: request.params.id } })
-    .then(movie => response.send({ movie }))
-    .catch(next)
-);
+router.delete("/movies/:id/", (request, response, next) => {
+  Movie.destroy({
+    where: {
+      id: request.params.id
+    }
+  })
+    .then(movieDeleted => {
+      if (movieDeleted) {
+        console.log("Selected movie deleted");
+        response.status(204).end();
+      } else {
+        console.log("Selected movie not found");
+        response.status(404).end();
+      }
+    })
+    .catch(error => next(error));
+});
 
 module.exports = router;
